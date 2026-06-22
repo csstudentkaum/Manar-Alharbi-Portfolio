@@ -14,25 +14,32 @@
     })();
   </script>
   <title>Manar Alharbi — Portfolio</title>
-  <!-- Favicon (theme-aware logo) -->
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" data-favicon="svg" />
+  <!-- Favicon (theme-aware MA logo; PNG first for broad browser support) -->
+  <link rel="icon" href="favicon.ico" sizes="any" data-favicon="ico" />
   <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32" data-favicon="png32" />
   <link rel="icon" href="assets/favicon-16.png" type="image/png" sizes="16x16" data-favicon="png16" />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" data-favicon="svg" />
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" sizes="180x180" data-favicon="apple" />
   <script>
     (function () {
+      var base = (function () {
+        var match = location.pathname.match(/^(.*?\/Manar-Alharbi-Portfolio)(?:\/|$)/);
+        return match ? match[1] + '/' : '';
+      })();
       var paths = {
         dark: {
-          svg: 'assets/favicon.svg',
-          png32: 'assets/favicon-32.png',
-          png16: 'assets/favicon-16.png',
-          apple: 'assets/apple-touch-icon.png'
+          ico: base + 'favicon.ico',
+          png32: base + 'assets/favicon-32.png',
+          png16: base + 'assets/favicon-16.png',
+          svg: base + 'assets/favicon.svg',
+          apple: base + 'assets/apple-touch-icon.png'
         },
         light: {
-          svg: 'assets/favicon-light.svg',
-          png32: 'assets/favicon-light-32.png',
-          png16: 'assets/favicon-light-16.png',
-          apple: 'assets/apple-touch-icon-light.png'
+          ico: base + 'favicon.ico',
+          png32: base + 'assets/favicon-light-32.png',
+          png16: base + 'assets/favicon-light-16.png',
+          svg: base + 'assets/favicon-light.svg',
+          apple: base + 'assets/apple-touch-icon-light.png'
         }
       };
       var theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
@@ -184,9 +191,19 @@
       <div class="projects-header reveal">
         <h2 class="section-title">Selected Work</h2>
       </div>
-      <div class="projects-scroll-wrap">
-        <div class="projects-grid" id="projectsGrid">
-          <!-- Cards injected by JS — add projects in script.js -->
+      <div class="projects-scroll-outer">
+        <div class="projects-scroll-hint" id="projectsScrollHint" aria-hidden="true">
+          <div class="projects-scroll-hint-inner">
+            <span class="projects-scroll-hint-label">Swipe</span>
+            <span class="projects-scroll-hint-arrow">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="projects-scroll-wrap">
+          <div class="projects-grid" id="projectsGrid">
+            <!-- Cards injected by JS — add projects in script.js -->
+          </div>
         </div>
       </div>
     </div>

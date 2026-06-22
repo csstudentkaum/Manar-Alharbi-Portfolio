@@ -221,18 +221,25 @@ function renderProjects() {
 const THEME_STORAGE_KEY = 'theme';
 let _metricPalette = null;
 
+function getSiteBasePath() {
+  const match = location.pathname.match(/^(.*?\/Manar-Alharbi-Portfolio)(?:\/|$)/);
+  return match ? `${match[1]}/` : '';
+}
+
 const FAVICON_PATHS = {
   dark: {
-    svg: 'assets/favicon.svg',
-    png32: 'assets/favicon-32.png',
-    png16: 'assets/favicon-16.png',
-    apple: 'assets/apple-touch-icon.png',
+    ico: `${getSiteBasePath()}favicon.ico`,
+    png32: `${getSiteBasePath()}assets/favicon-32.png`,
+    png16: `${getSiteBasePath()}assets/favicon-16.png`,
+    svg: `${getSiteBasePath()}assets/favicon.svg`,
+    apple: `${getSiteBasePath()}assets/apple-touch-icon.png`,
   },
   light: {
-    svg: 'assets/favicon-light.svg',
-    png32: 'assets/favicon-light-32.png',
-    png16: 'assets/favicon-light-16.png',
-    apple: 'assets/apple-touch-icon-light.png',
+    ico: `${getSiteBasePath()}favicon.ico`,
+    png32: `${getSiteBasePath()}assets/favicon-light-32.png`,
+    png16: `${getSiteBasePath()}assets/favicon-light-16.png`,
+    svg: `${getSiteBasePath()}assets/favicon-light.svg`,
+    apple: `${getSiteBasePath()}assets/apple-touch-icon-light.png`,
   },
 };
 
@@ -1334,12 +1341,47 @@ function initProjectsDrag() {
   if (!wrap) return;
 
   const DRAG_THRESHOLD = 6;
+  const FRICTION = 0.92;
+  const MIN_VELOCITY = 0.35;
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
   let pointerActive = false;
   let dragging = false;
   let startX = 0;
   let scrollLeft = 0;
+  let lastX = 0;
+  let lastTime = 0;
+  let velocity = 0;
+  let momentumId = null;
 
   const isInteractive = target => target.closest(PROJECTS_INTERACTIVE);
+
+  const clampScroll = () => {
+    const max = Math.max(0, wrap.scrollWidth - wrap.clientWidth);
+    wrap.scrollLeft = Math.max(0, Math.min(wrap.scrollLeft, max));
+  };
+
+  const stopMomentum = () => {
+    if (momentumId) {
+      cancelAnimationFrame(momentumId);
+      momentumId = null;
+    }
+  };
+
+  const runMomentum = () => {
+    if (Math.abs(velocity) < MIN_VELOCITY) {
+      momentumId = null;
+      return;
+    }
+    wrap.scrollLeft -= velocity;
+    velocity *= FRICTION;
+    clampScroll();
+    if (Math.abs(velocity) >= MIN_VELOCITY) {
+      momentumId = requestAnimationFrame(runMomentum);
+    } else {
+      momentumId = null;
+    }
+  };
 
   const endDrag = () => {
     pointerActive = false;
@@ -1354,17 +1396,35 @@ function initProjectsDrag() {
     if (!dragging && Math.abs(dx) > DRAG_THRESHOLD) {
       dragging = true;
       wrap.classList.add("is-dragging");
+      lastX = e.clientX;
+      lastTime = performance.now();
+      velocity = 0;
     }
     if (!dragging) return;
 
     e.preventDefault();
-    wrap.scrollLeft = scrollLeft - dx * 1.4;
+
+    const now = performance.now();
+    const dt = now - lastTime;
+    if (dt > 0) {
+      velocity = (e.clientX - lastX) / dt * 16;
+      lastX = e.clientX;
+      lastTime = now;
+    }
+
+    wrap.scrollLeft = scrollLeft - dx;
+    clampScroll();
   };
 
   const onPointerEnd = () => {
     document.removeEventListener("pointermove", onPointerMove);
     document.removeEventListener("pointerup", onPointerEnd);
     document.removeEventListener("pointercancel", onPointerEnd);
+
+    if (dragging && !reducedMotion && Math.abs(velocity) >= MIN_VELOCITY) {
+      runMomentum();
+    }
+
     endDrag();
   };
 
@@ -1372,15 +1432,79 @@ function initProjectsDrag() {
     if (e.pointerType !== "mouse" || e.button !== 0) return;
     if (isInteractive(e.target)) return;
 
+    stopMomentum();
     pointerActive = true;
     dragging = false;
     startX = e.clientX;
     scrollLeft = wrap.scrollLeft;
+    lastX = e.clientX;
+    lastTime = performance.now();
+    velocity = 0;
 
     document.addEventListener("pointermove", onPointerMove, { passive: false });
     document.addEventListener("pointerup", onPointerEnd);
     document.addEventListener("pointercancel", onPointerEnd);
   });
+
+  wrap.addEventListener("wheel", e => {
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+    stopMomentum();
+  }, { passive: true });
+}
+
+function initProjectsScrollHint() {
+  const wrap = document.querySelector(".projects-scroll-wrap");
+  const hint = document.getElementById("projectsScrollHint");
+  if (!wrap || !hint) return;
+
+  const mobileMq = window.matchMedia("(max-width: 900px)");
+  let dismissed = false;
+  let autoTimer = null;
+
+  const dismiss = () => {
+    if (dismissed) return;
+    dismissed = true;
+    hint.classList.add("is-hidden");
+    wrap.removeEventListener("scroll", onScroll);
+    if (autoTimer) {
+      clearTimeout(autoTimer);
+      autoTimer = null;
+    }
+  };
+
+  const onScroll = () => {
+    if (wrap.scrollLeft > 6) dismiss();
+  };
+
+  const refresh = () => {
+    wrap.removeEventListener("scroll", onScroll);
+    if (autoTimer) {
+      clearTimeout(autoTimer);
+      autoTimer = null;
+    }
+
+    if (!mobileMq.matches) {
+      dismissed = true;
+      hint.classList.add("is-hidden");
+      return;
+    }
+
+    const canScroll = wrap.scrollWidth > wrap.clientWidth + 4;
+    if (!canScroll) {
+      dismissed = true;
+      hint.classList.add("is-hidden");
+      return;
+    }
+
+    dismissed = false;
+    hint.classList.remove("is-hidden");
+    wrap.addEventListener("scroll", onScroll, { passive: true });
+    autoTimer = setTimeout(dismiss, 4000);
+  };
+
+  refresh();
+  mobileMq.addEventListener("change", refresh);
+  window.addEventListener("resize", refresh, { passive: true });
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1392,6 +1516,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initHeroReveal();
   initContactHeadline();
   initProjectsDrag();
+  initProjectsScrollHint();
   initMetricsModal();
   initVideoModal();
   initProjectCardClicks();
