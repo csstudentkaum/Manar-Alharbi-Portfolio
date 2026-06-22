@@ -194,10 +194,8 @@
       <div class="projects-scroll-outer">
         <div class="projects-scroll-hint" id="projectsScrollHint" aria-hidden="true">
           <div class="projects-scroll-hint-inner">
+            <div class="scroll-line" aria-hidden="true"></div>
             <span class="projects-scroll-hint-label">Swipe</span>
-            <span class="projects-scroll-hint-arrow">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
-            </span>
           </div>
         </div>
         <div class="projects-scroll-wrap">
@@ -258,7 +256,6 @@
             <span class="tk-pill">Angular</span>
             <span class="tk-pill">Ionic</span>
             <span class="tk-pill">Flutter</span>
-            <span class="tk-pill">Flask</span>
             <span class="tk-pill">Firebase</span>
             <span class="tk-pill">MySQL</span>
             <span class="tk-pill">REST APIs</span>
@@ -482,6 +479,25 @@
       </div>
     </div>
     <div id="metricsTooltip" class="metrics-tooltip" role="tooltip" aria-hidden="true"></div>
+  </div>
+
+  <!-- ═══════════════════════════ OVERVIEW MODAL ═══════════════════════════ -->
+  <div id="overviewModal" class="overview-modal" role="dialog" aria-modal="true" aria-labelledby="overviewModalTitle">
+    <div class="overview-backdrop"></div>
+    <div class="overview-panel">
+      <div class="overview-panel-header">
+        <div class="overview-panel-meta">
+          <span id="overviewModalBadge" class="overview-badge"></span>
+          <h2 id="overviewModalTitle" class="overview-title"></h2>
+        </div>
+        <button class="overview-close" id="overviewClose" type="button" aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="overview-panel-body">
+        <p id="overviewModalDesc" class="overview-desc"></p>
+      </div>
+    </div>
   </div>
 
   <!-- ═══════════════════════════ VIDEO MODAL ═══════════════════════════ -->

@@ -140,45 +140,57 @@ const projects = [
 /* ─────────────────────────────────────────────────────────
    RENDER PROJECT CARDS (projects section)
 ───────────────────────────────────────────────────────── */
-const githubSVG  = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>`;
+const githubSVG  = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>`;
 const liveSVG    = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`;
-const metricsSVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`;
-const demoSVG    = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+const metricsSVG  = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>`;
+const overviewSVG = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>`;
+const demoSVG     = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
 
 const PROJECTS_INTERACTIVE =
   "a, button, input, textarea, select, label, summary, .card-action, .card-footer, .card-actions, [role='button'], [role='link']";
 
 let openMetricsModalFn = null;
+let openOverviewModalFn = null;
 let openVideoModalFn = null;
 let resetProjectsDragState = null;
 
 function projectCardFooterHTML(p, i) {
-  const parts = [];
-  if (p.github) {
-    parts.push(`<a href="${p.github}" target="_blank" rel="noopener" class="card-action card-action-icon" aria-label="View on GitHub">${githubSVG}</a>`);
-  }
-  if (p.video) {
-    parts.push(`<button type="button" class="card-action card-action-btn card-action-demo card-link-video" data-video="${p.video}" data-title="${p.title}">${demoSVG}<span>Demo</span></button>`);
-  } else if (p.demo) {
-    parts.push(`<a href="${p.demo}" target="_blank" rel="noopener" class="card-action card-action-btn card-action-demo" aria-label="Demo">${demoSVG}<span>Demo</span></a>`);
-  }
-  if (p.live) {
-    parts.push(`<a href="${p.live}" target="_blank" rel="noopener" class="card-action card-action-icon" aria-label="Live site">${liveSVG}</a>`);
+  const textParts = [];
+  const iconParts = [];
+
+  if (p.desc) {
+    textParts.push(`<button type="button" class="card-action card-action-btn card-overview-btn" data-idx="${i}">${overviewSVG}<span>Overview</span></button>`);
   }
   if (p.metrics) {
-    parts.push(`<button type="button" class="card-action card-action-btn card-metrics-btn" data-idx="${i}">${metricsSVG}<span>Metrics</span></button>`);
+    textParts.push(`<button type="button" class="card-action card-action-btn card-metrics-btn" data-idx="${i}">${metricsSVG}<span>Metrics</span></button>`);
+  }
+  if (p.github) {
+    iconParts.push(`<a href="${p.github}" target="_blank" rel="noopener" class="card-action card-action-icon card-github" aria-label="View on GitHub" title="GitHub">${githubSVG}</a>`);
+  }
+  if (p.live) {
+    iconParts.push(`<a href="${p.live}" target="_blank" rel="noopener" class="card-action card-action-icon" aria-label="Live site" title="Live site">${liveSVG}</a>`);
+  }
+  if (p.video) {
+    iconParts.push(`<button type="button" class="card-action card-action-icon card-action-demo card-link-video" data-video="${p.video}" data-title="${p.title}" aria-label="Watch demo" title="Demo">${demoSVG}</button>`);
+  } else if (p.demo) {
+    iconParts.push(`<a href="${p.demo}" target="_blank" rel="noopener" class="card-action card-action-icon card-action-demo" aria-label="Open demo" title="Demo">${demoSVG}</a>`);
   }
 
+  const iconsHTML = iconParts.length
+    ? `<div class="card-actions-icons" role="presentation">${iconParts.join("")}</div>`
+    : "";
   const tagsHTML = p.tags?.length
     ? `<div class="card-tags">${projectCardTagsHTML(p.tags)}</div>`
     : "";
-  const actionsHTML = parts.length
-    ? `<div class="card-actions" role="group" aria-label="Project links">${parts.join("")}</div>`
+  const actionsHTML = textParts.length || iconParts.length
+    ? `<div class="card-actions" role="group" aria-label="Project links">${textParts.join("")}${iconsHTML}</div>`
     : "";
 
-  if (!tagsHTML && !actionsHTML) return "";
+  if (!tagsHTML && !actionsHTML) return { footerHTML: "" };
 
-  return `<div class="card-footer">${tagsHTML}${actionsHTML}</div>`;
+  return {
+    footerHTML: tagsHTML || actionsHTML ? `<div class="card-footer">${tagsHTML}${actionsHTML}</div>` : "",
+  };
 }
 
 function projectCardTagsHTML(tags) {
@@ -186,7 +198,7 @@ function projectCardTagsHTML(tags) {
 }
 
 function projectCardHTML(p, i) {
-  const footerHTML = projectCardFooterHTML(p, i);
+  const { footerHTML } = projectCardFooterHTML(p, i);
 
   return `
     <article class="project-card reveal" data-idx="${i}" style="transition-delay:${i * 100}ms" role="article">
@@ -200,7 +212,6 @@ function projectCardHTML(p, i) {
           ${p.badge ? `<span class="card-badge">${p.badge}</span>` : ""}
         </div>
         <h3 class="card-title">${p.title}</h3>
-        <p class="card-desc">${p.desc}</p>
         ${footerHTML}
       </div>
     </article>
@@ -1267,6 +1278,51 @@ function initMetricsModal() {
   openMetricsModalFn = openModal;
 }
 
+function initOverviewModal() {
+  const modal    = document.getElementById("overviewModal");
+  const closeBtn = document.getElementById("overviewClose");
+  const backdrop = modal?.querySelector(".overview-backdrop");
+  if (!modal || !closeBtn || !backdrop) return;
+
+  function openOverview(idx) {
+    const p = projects[idx];
+    if (!p || !p.desc) return;
+
+    const badgeEl = document.getElementById("overviewModalBadge");
+    const titleEl = document.getElementById("overviewModalTitle");
+    const descEl  = document.getElementById("overviewModalDesc");
+
+    if (badgeEl) {
+      badgeEl.textContent = p.badge || "";
+      badgeEl.hidden = !p.badge;
+    }
+    if (titleEl) titleEl.textContent = p.title;
+    if (descEl) descEl.textContent = p.desc;
+
+    resetProjectsDragState?.();
+    modal.classList.add("open");
+    document.body.style.overflow = "hidden";
+    closeBtn.focus();
+  }
+
+  function closeOverview() {
+    modal.classList.remove("open");
+    document.body.style.overflow = "";
+    resetProjectsDragState?.();
+  }
+
+  closeBtn.addEventListener("click", e => {
+    e.preventDefault();
+    closeOverview();
+  });
+  backdrop.addEventListener("click", closeOverview);
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeOverview();
+  });
+
+  openOverviewModalFn = openOverview;
+}
+
 function initVideoModal() {
   const modal    = document.getElementById("videoModal");
   const closeBtn = document.getElementById("videoClose");
@@ -1334,7 +1390,7 @@ function initProjectCardClicks() {
   if (!grid) return;
 
   grid.addEventListener("pointerdown", e => {
-    if (e.target.closest(".card-metrics-btn, .card-link-video, .card-action")) {
+    if (e.target.closest(".card-metrics-btn, .card-overview-btn, .card-link-video, .card-action")) {
       e.stopPropagation();
     }
   });
@@ -1344,6 +1400,13 @@ function initProjectCardClicks() {
     if (metricsBtn) {
       e.stopPropagation();
       openMetricsModalFn?.(Number(metricsBtn.dataset.idx));
+      return;
+    }
+
+    const overviewBtn = e.target.closest(".card-overview-btn");
+    if (overviewBtn) {
+      e.stopPropagation();
+      openOverviewModalFn?.(Number(overviewBtn.dataset.idx));
       return;
     }
 
@@ -1549,6 +1612,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initProjectsDrag();
   initProjectsScrollHint();
   initMetricsModal();
+  initOverviewModal();
   initVideoModal();
   initProjectCardClicks();
   fixProjectsHashScroll();
