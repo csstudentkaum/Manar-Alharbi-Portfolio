@@ -28,7 +28,7 @@ const projects = [
     video: "assets/khotaa-demo.mp4",
     date: "Sep 2025 – May 2026",
     metrics: {
-      summary: "Final model: EfficientNetV2-S with a custom classification head, trained on combined train+validation data for 30 epochs. Evaluated on a held-out test set for diabetic foot risk detection using smart insole sensor data.",
+      summary: "Six deep learning models were trained and evaluated for diabetic foot risk detection using smart insole sensor data. EfficientNetV2-S achieved the highest performance and was selected as the final model for deployment.",
       stats: [
         { value: "84.04%", label: "Accuracy",    sub: "Test set" },
         { value: "82.93%", label: "Macro F1",    sub: "Balanced classes" },
@@ -150,6 +150,7 @@ const PROJECTS_INTERACTIVE =
 
 let openMetricsModalFn = null;
 let openVideoModalFn = null;
+let resetProjectsDragState = null;
 
 function projectCardFooterHTML(p, i) {
   const parts = [];
@@ -1216,6 +1217,7 @@ function initMetricsModal() {
       perClassEl.innerHTML = "";
     }
 
+    resetProjectsDragState?.();
     modal.classList.add("open");
     document.body.style.overflow = "hidden";
 
@@ -1250,11 +1252,17 @@ function initMetricsModal() {
     document.body.style.overflow = "";
     hideTooltip();
     activeFilter = null;
+    resetProjectsDragState?.();
   }
 
-  closeBtn.addEventListener("click", closeModal);
+  closeBtn.addEventListener("click", e => {
+    e.preventDefault();
+    closeModal();
+  });
   backdrop.addEventListener("click", closeModal);
-  document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeModal();
+  });
 
   openMetricsModalFn = openModal;
 }
@@ -1306,11 +1314,17 @@ function initVideoModal() {
     source.src = "";
     panel.style.width = "";
     document.body.style.overflow = "";
+    resetProjectsDragState?.();
   }
 
-  closeBtn.addEventListener("click", closeVideo);
+  closeBtn.addEventListener("click", e => {
+    e.preventDefault();
+    closeVideo();
+  });
   backdrop.addEventListener("click", closeVideo);
-  document.addEventListener("keydown", e => { if (e.key === "Escape") closeVideo(); });
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape" && modal.classList.contains("open")) closeVideo();
+  });
 
   openVideoModalFn = openVideo;
 }
@@ -1318,6 +1332,12 @@ function initVideoModal() {
 function initProjectCardClicks() {
   const grid = document.getElementById("projectsGrid");
   if (!grid) return;
+
+  grid.addEventListener("pointerdown", e => {
+    if (e.target.closest(".card-metrics-btn, .card-link-video, .card-action")) {
+      e.stopPropagation();
+    }
+  });
 
   grid.addEventListener("click", e => {
     const metricsBtn = e.target.closest(".card-metrics-btn");
@@ -1388,6 +1408,17 @@ function initProjectsDrag() {
     dragging = false;
     wrap.classList.remove("is-dragging");
   };
+
+  const resetDragState = () => {
+    stopMomentum();
+    document.removeEventListener("pointermove", onPointerMove);
+    document.removeEventListener("pointerup", onPointerEnd);
+    document.removeEventListener("pointercancel", onPointerEnd);
+    endDrag();
+  };
+
+  resetProjectsDragState = resetDragState;
+  window.addEventListener("blur", resetDragState);
 
   const onPointerMove = e => {
     if (!pointerActive) return;
