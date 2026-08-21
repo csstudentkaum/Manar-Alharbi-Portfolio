@@ -924,26 +924,38 @@ body.menu-open .drawer-overlay {
   margin: auto 0;
 }
 
+/* Responsive container relative positioning */
 .about-info-card {
   position: relative;
+  /* Add top padding on mobile so logos don't overlap text */
+  padding-top: 80px; 
 }
 
-.education-logo {
-  position: absolute;
-  center: 50px;
-  right: 8px;
-  width: 78px;
-  height: 78px;
-  object-fit: contain;
-}
+/* Base style for logos */
+.education-logo,
 .logog {
   position: absolute;
-  top: 40px;
-  center: 50px;
-  right: 10px;
-  width: 75px;
-  height: 75px;
+  top: 20px;
+  right: 20px;
+  width: 50px;       /* Smaller default for mobile */
+  height: 50px;
   object-fit: contain;
+  z-index: 2;
+}
+
+/* Desktop sizing adjustments */
+@media (min-width: 768px) {
+  .about-info-card {
+    padding-top: 32px; /* Standard card padding on larger screens */
+  }
+
+  .education-logo,
+  .logog {
+    width: 78px;
+    height: 78px;
+    top: 32px;
+    right: 32px;
+  }
 }
 /* Greeting — glass pill pop-in */
 .hero-greeting {
