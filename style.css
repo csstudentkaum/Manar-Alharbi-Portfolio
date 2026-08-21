@@ -924,12 +924,39 @@ body.menu-open .drawer-overlay {
   margin: auto 0;
 }
 
+.about-info-card {
+  position: relative;
+}
+
+.education-logo {
+  position: absolute;
+  center: 50px;
+  right: 8px;
+  width: 78px;
+  height: 78px;
+  object-fit: contain;
+}
+.logog {
+  position: absolute;
+  top: 40px;
+  center: 50px;
+  right: 10px;
+  width: 75px;
+  height: 75px;
+  object-fit: contain;
+}
 /* Greeting — glass pill pop-in */
 .hero-greeting {
   position: relative;
   margin-bottom: 22px;
   transition-delay: 0.06s;
   isolation: isolate;
+}
+.cert-badge-img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  background: transparent;
 }
 
 /* Colorful splash spheres behind greeting pill */
@@ -2375,7 +2402,8 @@ body.menu-open .drawer-overlay {
     box-shadow 0.3s var(--ease);
 }
 
-.cert-item:hover {
+.cert-item:hover,
+a.cert-item:hover {
   background: var(--glass-bg-hover);
   border-color: rgba(255, 255, 255, 0.16);
   border-left-color: #FFEDAD;
@@ -2385,9 +2413,23 @@ body.menu-open .drawer-overlay {
     0 0 24px rgba(255, 237, 173, 0.08);
 }
 
-[data-theme="light"] .cert-item:hover {
+[data-theme="light"] .cert-item:hover,
+[data-theme="light"] a.cert-item:hover {
   border-color: var(--card-surface-border-hover);
   box-shadow: var(--card-surface-shadow-hover), 0 0 24px rgba(127, 1, 42, 0.06);
+}
+
+a.cert-item {
+  text-decoration: none;
+  color: inherit;
+}
+
+.cert-item--badge .cert-badge-img {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  background: transparent;
+  margin-bottom: 4px;
 }
 
 .cert-issuer {
